@@ -1,0 +1,13 @@
+# macOS junk
+.DS_Store
+
+# Personal/live data (stays on your computer & server, not in the repo)
+data/*.sqlite
+data/*.sqlite-journal
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Obsidian editor settings (not part of the app)
+.obsidian/

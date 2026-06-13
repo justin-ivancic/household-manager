@@ -1,0 +1,242 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#f8fbf9" />
+    <title>household-manager</title>
+    <link rel="stylesheet" href="./styles.css?v=20260604-history-restore" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="topbar" aria-label="App Kopfbereich">
+        <div class="household-mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><path d="M3 10.8 12 3l9 7.8v9.7a1 1 0 0 1-1 1h-5.2v-6.4H9.2v6.4H4a1 1 0 0 1-1-1z" /></svg>
+        </div>
+        <div class="title-block">
+          <h1>Unser Haushalt</h1>
+        </div>
+        <button class="icon-button" id="searchToggle" aria-label="Suche öffnen">
+          <svg viewBox="0 0 24 24"><path d="m21 21-4.3-4.3m2.3-5.2a7.5 7.5 0 1 1-15 0 7.5 7.5 0 0 1 15 0Z" /></svg>
+        </button>
+      </header>
+
+      <main id="appMain" class="screen-stack">
+        <section class="screen active" data-screen="home" aria-labelledby="homeTitle">
+          <div class="stats-grid">
+            <button class="stat-card shopping" data-nav="home" type="button">
+              <span class="stat-icon"><svg viewBox="0 0 24 24"><path d="M9 5h6m-7 4h8M8 13h8M8 17h5M8 3h8l1 2h2v17H5V5h2z" /></svg></span>
+              <span><strong id="openCount">0</strong><small>Dinge zu kaufen</small></span>
+              <svg class="chevron" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6" /></svg>
+            </button>
+            <button class="stat-card inventory" data-nav="inventory" type="button">
+              <span class="stat-icon"><svg viewBox="0 0 24 24"><path d="m12 3 8 4.5v9L12 21l-8-4.5v-9zm0 0v9m8-4.5-8 4.5-8-4.5" /></svg></span>
+              <span><strong id="inventoryCount">0</strong><small>Dinge im Vorrat</small></span>
+              <svg class="chevron" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6" /></svg>
+            </button>
+          </div>
+
+          <section class="panel shopping-panel">
+            <div class="segmented" role="tablist" aria-label="Einkaufsliste">
+              <button class="segment active" data-shopping-tab="open" role="tab" type="button">Offen <span id="openBadge">0</span></button>
+              <button class="segment" data-shopping-tab="purchased" role="tab" type="button">Gekauft <span id="purchasedBadge">0</span></button>
+            </div>
+            <div class="section-heading">
+              <h2 id="homeTitle">Zu kaufen</h2>
+              <div class="shop-filter-shell">
+                <button id="shopFilterButton" class="shop-filter-trigger" type="button" aria-haspopup="dialog" aria-expanded="false">
+                  <svg viewBox="0 0 24 24"><path d="M21 4h-7M10 4H3M21 12h-9M8 12H3M21 20h-5M12 20H3" /><circle cx="12" cy="4" r="2" /><circle cx="10" cy="12" r="2" /><circle cx="14" cy="20" r="2" /></svg>
+                  <span id="shopFilterLabel">Alle Läden</span>
+                </button>
+                <div id="shopFilterMenu" class="shop-filter-menu" hidden></div>
+              </div>
+            </div>
+            <div id="shoppingList" class="item-list"></div>
+          </section>
+
+          <section class="recent-section">
+            <div class="section-heading">
+              <h2>Zuletzt gekauft</h2>
+              <button class="text-action muted" data-nav="history" type="button">Alle</button>
+            </div>
+            <div id="recentPurchased" class="compact-list"></div>
+          </section>
+
+          <button class="inventory-cta" data-nav="inventory" type="button">
+            <span class="stat-icon violet"><svg viewBox="0 0 24 24"><path d="M5 8h14v13H5zM8 8V5h8v3M9 13h6" /></svg></span>
+            <span><strong>Bestand prüfen</strong><small>Sieh nach, was noch zuhause ist</small></span>
+            <svg class="chevron" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6" /></svg>
+          </button>
+        </section>
+
+        <section class="screen" data-screen="inventory" aria-labelledby="inventoryTitle">
+          <div class="screen-header">
+            <div>
+              <p class="eyebrow">Vorräte</p>
+              <h2 id="inventoryTitle">Bestand</h2>
+            </div>
+            <button class="text-action" data-open-add="inventory" type="button"><svg viewBox="0 0 24 24"><path d="M12 5v14m-7-7h14" /></svg>Hinzufügen</button>
+          </div>
+          <div class="search-row">
+            <input id="inventorySearch" type="search" placeholder="Bestand durchsuchen" autocomplete="off" />
+          </div>
+          <div id="categoryFilters" class="chip-row" aria-label="Kategoriefilter"></div>
+          <div id="inventoryList" class="item-list"></div>
+        </section>
+
+        <section class="screen" data-screen="history" aria-labelledby="historyTitle">
+          <div class="screen-header">
+            <div>
+              <p class="eyebrow">Verlauf</p>
+              <h2 id="historyTitle">Historie</h2>
+            </div>
+          </div>
+          <div id="historyList" class="item-list"></div>
+        </section>
+
+        <section class="screen" data-screen="settings" aria-labelledby="settingsTitle">
+          <div class="screen-header">
+            <div>
+              <p class="eyebrow">System</p>
+              <h2 id="settingsTitle">Einstellungen</h2>
+            </div>
+          </div>
+          <div class="settings-list">
+            <section class="settings-card">
+              <h3>Kategorien</h3>
+              <div id="settingsCategories" class="category-grid"></div>
+            </section>
+            <section class="settings-card">
+              <h3>Daten</h3>
+              <p>Die Daten werden lokal auf dem Heimserver in SQLite gespeichert. Alle Geräte im Heimnetz sehen denselben Haushaltszustand.</p>
+              <div class="button-row">
+                <button id="exportData" class="secondary-button" type="button">Exportieren</button>
+                <label class="secondary-button file-button">Importieren<input id="importData" type="file" accept="application/json" /></label>
+              </div>
+            </section>
+            <section class="settings-card">
+              <h3>Systeminformationen</h3>
+              <dl class="system-info">
+                <div><dt>Version</dt><dd>1.0 lokal</dd></div>
+                <div><dt>Persistenz</dt><dd>SQLite</dd></div>
+                <div><dt>Hosting</dt><dd>Docker/Python</dd></div>
+              </dl>
+            </section>
+          </div>
+        </section>
+      </main>
+
+      <nav class="bottom-nav" aria-label="Hauptnavigation">
+        <button class="nav-item active" data-nav="home" type="button"><svg viewBox="0 0 24 24"><path d="M3 10.8 12 3l9 7.8v9.7a1 1 0 0 1-1 1h-5.2v-6.4H9.2v6.4H4a1 1 0 0 1-1-1z" /></svg><span>Home</span></button>
+        <button class="nav-item" data-nav="inventory" type="button"><svg viewBox="0 0 24 24"><path d="m12 3 8 4.5v9L12 21l-8-4.5v-9zm0 0v9m8-4.5-8 4.5-8-4.5" /></svg><span>Bestand</span></button>
+        <button class="nav-add" data-open-add="shopping" type="button" aria-label="Hinzufügen"><svg viewBox="0 0 24 24"><path d="M12 5v14m-7-7h14" /></svg><span>Hinzufügen</span></button>
+        <button class="nav-item" data-nav="history" type="button"><svg viewBox="0 0 24 24"><path d="M12 8v5l3 2m6-3a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg><span>Historie</span></button>
+        <button class="nav-item" data-nav="settings" type="button" aria-label="Einstellungen"><svg viewBox="0 0 24 24"><path d="M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Zm7.4-2.1.1-1.4-.1-1.4 2-1.5-2-3.4-2.4 1a8.2 8.2 0 0 0-2.4-1.4L14.3 3H9.7l-.4 2.3a8.2 8.2 0 0 0-2.4 1.4l-2.4-1-2 3.4 2 1.5-.1 1.4.1 1.4-2 1.5 2 3.4 2.4-1a8.2 8.2 0 0 0 2.4 1.4l.4 2.3h4.6l.4-2.3a8.2 8.2 0 0 0 2.4-1.4l2.4 1 2-3.4z" /></svg><span>System</span></button>
+      </nav>
+    </div>
+
+    <div id="searchOverlay" class="overlay" hidden>
+      <div class="overlay-scrim" data-close-overlay></div>
+      <section class="search-sheet" role="dialog" aria-modal="true" aria-label="Suche">
+        <div class="sheet-handle"></div>
+        <div class="search-row large">
+          <input id="globalSearch" type="search" placeholder="Einkauf, Bestand, Historie suchen" autocomplete="off" />
+          <button class="icon-button" data-close-overlay aria-label="Suche schließen" type="button">×</button>
+        </div>
+        <div id="searchResults" class="item-list"></div>
+      </section>
+    </div>
+
+    <div id="itemSheet" class="overlay" hidden>
+      <div class="overlay-scrim" data-close-sheet></div>
+      <form id="itemForm" class="item-sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
+        <div class="sheet-handle"></div>
+        <div class="sheet-header">
+          <h2 id="sheetTitle">Hinzufügen</h2>
+          <button class="icon-button" data-close-sheet type="button" aria-label="Schließen">×</button>
+        </div>
+        <label class="field span-all">
+          <span>Was fehlt?</span>
+          <input id="itemName" name="name" required autocomplete="off" placeholder="Milch" />
+        </label>
+        <label class="field">
+          <span>Menge</span>
+          <input id="itemQuantity" name="quantity" inputmode="decimal" placeholder="1" />
+        </label>
+        <label class="field">
+          <span>Einheit</span>
+          <input id="itemUnit" name="unit" placeholder="Packung" />
+        </label>
+        <label class="field span-all">
+          <span>Kategorie</span>
+          <select id="itemCategory" name="category"></select>
+        </label>
+        <label class="field inventory-only">
+          <span>Lagerort</span>
+          <input id="itemLocation" name="location" placeholder="Küche" />
+        </label>
+        <label class="field inventory-only">
+          <span>Mindestbestand</span>
+          <input id="itemMinimum" name="minimum" inputmode="decimal" placeholder="0" />
+        </label>
+        <label class="field span-all">
+          <span>Notiz</span>
+          <textarea id="itemNote" name="note" rows="2" placeholder="Optional"></textarea>
+        </label>
+        <fieldset class="field span-all shopping-only shop-field">
+          <legend>Bevorzugter Laden</legend>
+          <div id="shopChecks" class="shop-check-grid"></div>
+        </fieldset>
+        <div class="field span-all photo-field">
+          <span>Fotos</span>
+          <label class="photo-upload">
+            <input id="itemPhotos" name="photos" type="file" accept="image/*" multiple />
+            <strong>Fotos auswählen</strong>
+            <small id="photoFileSummary">Bis zu 6 Bilder</small>
+          </label>
+        </div>
+        <div id="photoPreview" class="photo-preview span-all" aria-label="Ausgewählte Fotos"></div>
+        <div class="sheet-actions span-all">
+          <button class="secondary-button" data-close-sheet type="button">Abbrechen</button>
+          <button class="primary-button" type="submit">Speichern</button>
+        </div>
+      </form>
+    </div>
+
+    <div id="detailOverlay" class="overlay" hidden>
+      <div class="overlay-scrim" data-close-detail></div>
+      <section class="detail-sheet" role="dialog" aria-modal="true" aria-labelledby="detailTitle">
+        <div class="sheet-handle"></div>
+        <div class="sheet-header">
+          <h2 id="detailTitle">Details</h2>
+          <button class="icon-button" data-close-detail type="button" aria-label="Details schließen">×</button>
+        </div>
+        <div id="detailContent" class="detail-content span-all"></div>
+        <div class="sheet-actions detail-actions span-all">
+          <button id="detailEditButton" class="secondary-button" data-edit-detail type="button">Bearbeiten</button>
+          <button class="primary-button" data-close-detail type="button">Fertig</button>
+        </div>
+      </section>
+    </div>
+
+    <div id="photoOverlay" class="overlay photo-overlay" hidden>
+      <div class="photo-viewer" role="dialog" aria-modal="true" aria-labelledby="photoTitle">
+        <div class="photo-viewer-header">
+          <div>
+            <h2 id="photoTitle">Foto</h2>
+            <span id="photoCounter"></span>
+          </div>
+          <button class="icon-button" data-close-photo-viewer type="button" aria-label="Foto schließen">×</button>
+        </div>
+        <div id="photoStage" class="photo-stage"></div>
+        <div class="photo-viewer-actions">
+          <button id="photoPrev" class="icon-button" data-photo-prev type="button" aria-label="Vorheriges Foto">‹</button>
+          <button id="photoNext" class="icon-button" data-photo-next type="button" aria-label="Nächstes Foto">›</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+    <script src="./app.js?v=20260604-history-restore"></script>
+  </body>
+</html>
