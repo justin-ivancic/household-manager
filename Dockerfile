@@ -2,7 +2,7 @@ FROM python:3.12-alpine
 
 WORKDIR /app
 
-COPY index.html styles.css app.js server.py Reference-image.png project-idea.md ./
+COPY index.html styles.css app.js server.py project-idea.md ./
 COPY assets ./assets
 
 ENV HOUSEHOLD_DATA_DIR=/data

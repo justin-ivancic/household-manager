@@ -52,7 +52,7 @@ Der Ton ist ruhig, direkt und alltagsnah. Keine erklärenden Marketingtexte in d
 
 ## Referenzdesign
 
-Es gibt ein Referenzbild unter `Reference-image.png`. Es muss nicht 1:1 nachgebaut werden, aber die abstrakte Richtung ist wichtig.
+Es gibt ein Referenzbild unter `docs/reference-design.png`. Es muss nicht 1:1 nachgebaut werden, aber die abstrakte Richtung ist wichtig.
 
 Übernommene Designprinzipien:
 
