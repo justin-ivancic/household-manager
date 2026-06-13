@@ -1,86 +1,91 @@
 # 🏠 Household Manager
 
-> Mobile-first Haushalts-App für gemeinsame Einkaufslisten und eine übersichtliche Vorratshaltung – ohne Accounts, ohne Cloud-Zwang.
+> A mobile-first household app for shared shopping lists and a clear pantry overview — no accounts, no forced cloud.
 
-**Household Manager** ist das gemeinsame Gedächtnis für deinen Haushalt. Alle notieren in Sekunden, was fehlt – Lebensmittel, Badartikel oder Haushaltswaren – und beim Einkaufen wird die Liste einfach abgehakt. Gekaufte Dinge wandern automatisch in die Historie und optional in den Vorrat.
+**Household Manager** is the shared memory for your home. Everyone can jot down what's missing in seconds — groceries, bathroom supplies or household goods — and check items off while shopping. Purchased items move automatically into the history and, optionally, into your pantry stock.
 
-Die komplette Oberfläche ist auf **Deutsch** und für die Nutzung am Smartphone optimiert: im Supermarkt, in der Küche oder schnell vom Sofa aus.
+The app is built for the phone — in the supermarket, in the kitchen, or quickly from the couch — and runs entirely on your own network or server, so your data stays with you.
+
+> 🇩🇪 The app's interface is in **German** (built for a German household). This README is in English for a wider audience.
 
 ---
 
 ## 📱 Screenshots
 
 <p align="center">
-  <img src="screenshots/home.png" alt="Startseite mit Einkaufsliste" width="22%" />
-  <img src="screenshots/add.png" alt="Eintrag hinzufügen" width="22%" />
-  <img src="screenshots/inventory.png" alt="Vorratsübersicht" width="22%" />
-  <img src="screenshots/shop-layout.png" alt="Sortierung nach Laden" width="22%" />
+  <img src="screenshots/home.png" alt="Shopping list" width="30%" />
+  &nbsp;&nbsp;
+  <img src="screenshots/inventory.png" alt="Pantry inventory" width="30%" />
+  &nbsp;&nbsp;
+  <img src="screenshots/shops.png" alt="Filter by shop" width="30%" />
 </p>
 
 ---
 
-## ✨ Funktionen
+## ✨ Features
 
-- 🛒 **Gemeinsame Einkaufsliste** – in unter 5 Sekunden einen Eintrag hinzufügen, in unter 2 Sekunden abhaken.
-- 📦 **Vorratsübersicht** – sieh auf einen Blick, was zuhause noch da ist und was zur Neige geht.
-- 🏪 **Mehrere Läden** – ordne Einträge Geschäften zu (DM, Rewe, Lidl, Edeka, Aldi, Rossmann …) und sortiere die Liste passend zum Einkauf.
-- 📸 **Fotos & Kategorien** – optionale Produktfotos und Kategorien für schnelleres Wiederfinden.
-- 🕑 **Historie** – gekaufte Artikel verschwinden aus der offenen Liste, bleiben aber nachvollziehbar.
-- 📲 **Mobile-first** – helle, ruhige Oberfläche mit großer Plus-Aktion und Bottom-Navigation.
-- 🔒 **Lokal & ohne Accounts** – läuft im eigenen Netzwerk oder auf dem eigenen Server, deine Daten bleiben bei dir.
+- 🛒 **Shared shopping list** — add an item in under 5 seconds, check it off in under 2.
+- 📦 **Pantry overview** — see at a glance what's still at home and what's running low.
+- 🏪 **Multiple shops** — assign items to stores (DM, Rewe, Lidl, Edeka, Aldi, Rossmann …) and filter the list to match where you're shopping.
+- 📸 **Photos & categories** — optional product photos and categories for faster recognition.
+- 🕑 **History** — purchased items leave the open list but stay traceable.
+- 📲 **Mobile-first** — a calm, bright interface with a prominent quick-add button and bottom navigation.
+- 🔒 **Local & account-free** — runs on your own network or server; no sign-up, no cloud lock-in.
 
 ---
 
-## 🚀 Lokal starten
+## 🚀 Run locally
 
-Voraussetzung: **Python 3** (mehr braucht es nicht – die App nutzt nur die Standardbibliothek).
+Requirement: **Python 3** — that's it (the app only uses the standard library).
 
 ```bash
 PORT=4173 HOUSEHOLD_DATA_DIR=./data python3 server.py
 ```
 
-Dann im Browser öffnen:
+Then open in your browser:
 
 ```text
 http://127.0.0.1:4173
 ```
 
-## 🐳 Mit Docker
+## 🐳 Run with Docker
 
 ```bash
 docker compose up --build
 ```
 
-Die App läuft anschließend unter [http://localhost:8080](http://localhost:8080).
-Die SQLite-Datenbank wird im Docker-Volume `household-data` gespeichert und bleibt zwischen Neustarts erhalten.
+The app is then available at [http://localhost:8080](http://localhost:8080).
+The SQLite database is stored in the `household-data` Docker volume and persists across restarts.
 
 ---
 
-## 🧱 Technik
+## 🧱 Tech stack
 
-| Bereich    | Eingesetzt                                |
-|------------|-------------------------------------------|
-| Backend    | Python (Standardbibliothek `http.server`) |
-| Frontend   | HTML, CSS, Vanilla JavaScript             |
-| Datenbank  | SQLite                                    |
-| Deployment | Docker / Docker Compose                   |
+| Area       | Used                                       |
+|------------|--------------------------------------------|
+| Backend    | Python (standard-library `http.server`)    |
+| Frontend   | HTML, CSS, vanilla JavaScript              |
+| Database   | SQLite                                     |
+| Deployment | Docker / Docker Compose                    |
 
-## 📂 Projektstruktur
+## 📂 Project structure
 
 ```text
-├── server.py          # Backend: serviert die App und speichert den Zustand in SQLite
-├── index.html         # Oberfläche
+├── server.py          # Backend: serves the app and stores state in SQLite
+├── index.html         # Interface
 ├── styles.css         # Styling
-├── app.js             # Frontend-Logik
-├── assets/            # Laden-Logos (DM, Rewe, Lidl, …)
-├── Dockerfile         # Container-Build
-├── docker-compose.yml # Lokaler/Server-Start per Compose
-└── project-idea.md    # Produkt- und Designkonzept
+├── app.js             # Frontend logic
+├── assets/            # Shop logos (DM, Rewe, Lidl, …)
+├── screenshots/       # Screenshots used in this README
+├── docs/              # Design reference
+├── Dockerfile         # Container build
+├── docker-compose.yml # Local / server start via Compose
+└── project-idea.md    # Product & design concept (German)
 ```
 
 ## 🧪 QA
 
-Mit laufendem Server prüft ein Smoke-Test die mobilen Kernflows (Hinzufügen, Foto-Upload, Kaufen, Bestandssuche, Einstellungen, serverseitige Persistenz):
+With the server running, a smoke test checks the core mobile flows (adding, photo upload, purchasing, inventory search, settings, server-side persistence):
 
 ```bash
 QA_BASE_URL=http://127.0.0.1:4173 node qa-smoke.js
@@ -88,4 +93,4 @@ QA_BASE_URL=http://127.0.0.1:4173 node qa-smoke.js
 
 ---
 
-<p align="center"><em>Ruhig. Schnell. Alltagstauglich.</em></p>
+<p align="center"><em>Calm. Fast. Made for everyday life.</em></p>
