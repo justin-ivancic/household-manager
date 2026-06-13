@@ -11,10 +11,10 @@ Die komplette Oberfläche ist auf **Deutsch** und für die Nutzung am Smartphone
 ## 📱 Screenshots
 
 <p align="center">
-  <img src="qa-mobile-home.png" alt="Startseite mit Einkaufsliste" width="22%" />
-  <img src="qa-mobile-add.png" alt="Eintrag hinzufügen" width="22%" />
-  <img src="qa-mobile-inventory.png" alt="Vorratsübersicht" width="22%" />
-  <img src="qa-mobile-shop-layout.png" alt="Sortierung nach Laden" width="22%" />
+  <img src="screenshots/home.png" alt="Startseite mit Einkaufsliste" width="22%" />
+  <img src="screenshots/add.png" alt="Eintrag hinzufügen" width="22%" />
+  <img src="screenshots/inventory.png" alt="Vorratsübersicht" width="22%" />
+  <img src="screenshots/shop-layout.png" alt="Sortierung nach Laden" width="22%" />
 </p>
 
 ---
