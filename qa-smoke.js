@@ -34,6 +34,7 @@ const BASE_URL = process.env.QA_BASE_URL || "http://127.0.0.1:4173";
   await page.getByLabel("Was fehlt?").fill("Kaffee");
   await page.getByLabel("Menge").fill("2");
   await page.getByLabel("Einheit").fill("Packungen");
+  await expectShopChoice(page, "Hornbach");
   await page.locator('input[name="shops"][value="DM"]').check({ force: true });
   await page.locator('input[name="shops"][value="Rewe"]').check({ force: true });
   await page.locator("#itemPhotos").setInputFiles({
@@ -112,7 +113,7 @@ async function fetchJson(url) {
 async function expectShopLogosLoaded(page) {
   await page.waitForFunction(() => {
     const images = Array.from(document.querySelectorAll(".shop-logo img"));
-    return images.length >= 6 && images.every((image) => image.complete && image.naturalWidth > 0);
+    return images.length >= 7 && images.every((image) => image.complete && image.naturalWidth > 0);
   }, null, { timeout: 5000 });
   const brokenLogos = await page.locator(".shop-logo img").evaluateAll((images) => images
     .filter((image) => !image.complete || image.naturalWidth === 0)
@@ -120,6 +121,13 @@ async function expectShopLogosLoaded(page) {
   if (brokenLogos.length) {
     throw new Error(`Broken shop logos: ${brokenLogos.join(", ")}`);
   }
+}
+
+async function expectShopChoice(page, shop) {
+  const input = page.locator(`input[name="shops"][value="${shop}"]`);
+  await input.waitFor({ state: "attached", timeout: 5000 });
+  const logo = page.locator(`.shop-check:has(input[name="shops"][value="${shop}"]) .shop-logo img`);
+  await logo.waitFor({ state: "visible", timeout: 5000 });
 }
 
 async function expectVisible(page, selector) {

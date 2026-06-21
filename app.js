@@ -20,7 +20,7 @@ const categories = [
   { id: "sonstiges", name: "Sonstiges", icon: "📦", color: "#6b7280" },
 ];
 
-const shops = ["DM", "Rewe", "Edeka", "Lidl", "Aldi", "Rossmann"];
+const shops = ["DM", "Rewe", "Edeka", "Lidl", "Aldi", "Rossmann", "Hornbach"];
 const PURCHASE_CONFIRM_DELAY = 620;
 const TAP_MOVE_LIMIT = 12;
 const TAP_MAX_DURATION = 650;
@@ -32,6 +32,7 @@ const shopLogoFiles = {
   Lidl: "lidl.svg",
   Aldi: "aldi.svg",
   Rossmann: "rossmann.svg",
+  Hornbach: "hornbach.svg",
 };
 
 function createId() {
