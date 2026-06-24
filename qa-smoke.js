@@ -35,6 +35,7 @@ const BASE_URL = process.env.QA_BASE_URL || "http://127.0.0.1:4173";
   await page.getByLabel("Menge").fill("2");
   await page.getByLabel("Einheit").fill("Packungen");
   await expectShopChoice(page, "Hornbach");
+  await expectShopChoice(page, "Apotheke");
   await page.locator('input[name="shops"][value="DM"]').check({ force: true });
   await page.locator('input[name="shops"][value="Rewe"]').check({ force: true });
   await page.locator("#itemPhotos").setInputFiles({
@@ -113,7 +114,7 @@ async function fetchJson(url) {
 async function expectShopLogosLoaded(page) {
   await page.waitForFunction(() => {
     const images = Array.from(document.querySelectorAll(".shop-logo img"));
-    return images.length >= 7 && images.every((image) => image.complete && image.naturalWidth > 0);
+    return images.length >= 8 && images.every((image) => image.complete && image.naturalWidth > 0);
   }, null, { timeout: 5000 });
   const brokenLogos = await page.locator(".shop-logo img").evaluateAll((images) => images
     .filter((image) => !image.complete || image.naturalWidth === 0)

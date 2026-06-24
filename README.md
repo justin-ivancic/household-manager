@@ -26,7 +26,7 @@ The app is built for the phone — in the supermarket, in the kitchen, or quickl
 
 - 🛒 **Shared shopping list** — add an item in under 5 seconds, check it off in under 2.
 - 📦 **Pantry overview** — see at a glance what's still at home and what's running low.
-- 🏪 **Multiple shops** — assign items to stores (DM, Rewe, Lidl, Edeka, Aldi, Rossmann, Hornbach …) and filter the list to match where you're shopping.
+- 🏪 **Multiple shops** — assign items to stores (DM, Rewe, Lidl, Edeka, Aldi, Rossmann, Hornbach, Apotheke …) and filter the list to match where you're shopping.
 - 📸 **Photos & categories** — optional product photos and categories for faster recognition.
 - 🕑 **History** — purchased items leave the open list but stay traceable.
 - 📲 **Mobile-first** — a calm, bright interface with a prominent quick-add button and bottom navigation.
@@ -75,7 +75,7 @@ The SQLite database is stored in the `household-data` Docker volume and persists
 ├── index.html         # Interface
 ├── styles.css         # Styling
 ├── app.js             # Frontend logic
-├── assets/            # Shop logos (DM, Rewe, Lidl, Hornbach, …)
+├── assets/            # Shop logos (DM, Rewe, Lidl, Hornbach, Apotheke, …)
 ├── screenshots/       # Screenshots used in this README
 ├── docs/              # Design reference
 ├── Dockerfile         # Container build

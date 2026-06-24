@@ -26,7 +26,7 @@ STATIC_PATHS = {
     "/styles.css": "styles.css",
     "/app.js": "app.js",
 }
-SHOP_LOGO_FILES = ("dm.svg", "rewe.svg", "edeka.svg", "lidl.svg", "aldi.svg", "rossmann.svg", "hornbach.svg")
+SHOP_LOGO_FILES = ("dm.svg", "rewe.svg", "edeka.svg", "lidl.svg", "aldi.svg", "rossmann.svg", "hornbach.svg", "apotheke.svg")
 STATIC_PATHS.update({f"/assets/shop-logos/{file_name}": f"assets/shop-logos/{file_name}" for file_name in SHOP_LOGO_FILES})
 
 
