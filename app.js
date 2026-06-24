@@ -22,9 +22,11 @@ const categories = [
 
 const shops = ["DM", "Rewe", "Edeka", "Lidl", "Aldi", "Rossmann", "Hornbach", "Apotheke"];
 const PURCHASE_CONFIRM_DELAY = 620;
-const TAP_MOVE_LIMIT = 12;
-const TAP_MAX_DURATION = 650;
+const TAP_MOVE_LIMIT = 10;
+const TAP_MAX_DURATION = 520;
+const SCROLL_CLICK_BLOCK_MS = 700;
 const SYNTHETIC_CLICK_BLOCK_MS = 700;
+const DELETE_CONFIRM_MS = 3200;
 const shopLogoFiles = {
   DM: "dm.svg",
   Rewe: "rewe.svg",
@@ -103,6 +105,8 @@ let syntheticTapAt = 0;
 let tapCandidate = null;
 let scrollClickBlockUntil = 0;
 let nativeClickBlockUntil = 0;
+let pendingDelete = null;
+let pendingDeleteTimeout = null;
 let latestSyncRequestId = 0;
 let activeSyncRequests = 0;
 
@@ -309,7 +313,7 @@ function updateTapTracking(event) {
   const moved = Math.hypot(point.x - tapCandidate.x, point.y - tapCandidate.y);
   if (moved > TAP_MOVE_LIMIT) {
     tapCandidate.moved = true;
-    scrollClickBlockUntil = Date.now() + 450;
+    blockScrollClick();
   }
 }
 
@@ -327,7 +331,7 @@ function activateTouchControl(event) {
 
   if (tapCandidate?.moved || (tapCandidate && Date.now() - tapCandidate.startedAt > TAP_MAX_DURATION)) {
     tapCandidate = null;
-    scrollClickBlockUntil = Date.now() + 450;
+    blockScrollClick();
     return;
   }
   tapCandidate = null;
@@ -343,6 +347,11 @@ function activateTouchControl(event) {
 
 function suppressDuplicateTouchClick(event) {
   if (!event.isTrusted) return;
+  if (isScrollClickBlocked()) {
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    return;
+  }
   if (Date.now() < nativeClickBlockUntil) {
     event.preventDefault();
     event.stopImmediatePropagation();
@@ -380,6 +389,10 @@ function tapPoint(event) {
 
 function isScrollClickBlocked() {
   return Date.now() < scrollClickBlockUntil;
+}
+
+function blockScrollClick() {
+  scrollClickBlockUntil = Date.now() + SCROLL_CLICK_BLOCK_MS;
 }
 
 function eventTargetElement(target) {
@@ -633,7 +646,7 @@ function renderShopping() {
   els.shoppingList.querySelectorAll("[data-purchase]").forEach((button) => button.addEventListener("click", () => markPurchased(button.dataset.purchase)));
   els.shoppingList.querySelectorAll("[data-reopen]").forEach((button) => button.addEventListener("click", () => reopenItem(button.dataset.reopen)));
   els.shoppingList.querySelectorAll("[data-edit-shopping]").forEach((button) => button.addEventListener("click", () => openSheet({ type: "shopping", id: button.dataset.editShopping })));
-  els.shoppingList.querySelectorAll("[data-delete-shopping]").forEach((button) => button.addEventListener("click", () => deleteShopping(button.dataset.deleteShopping)));
+  els.shoppingList.querySelectorAll("[data-delete-shopping]").forEach((button) => button.addEventListener("click", () => requestDelete("shopping", button.dataset.deleteShopping)));
 }
 
 function renderShopFilterMenu() {
@@ -688,6 +701,7 @@ function shoppingRow(entry) {
   const meta = [category.name, quantityText(entry), entry.purchasedAt ? relativeDate(entry.purchasedAt) : ""].filter(Boolean).join(" · ");
   const isOpen = entry.status === "open";
   const isCompleting = pendingPurchaseIds.has(entry.id);
+  const deleteArmed = isDeleteArmed("shopping", entry.id);
   const disabled = isCompleting ? " disabled" : "";
   return `
     <article class="item-row${isCompleting ? " is-completing" : ""}" data-shopping-item="${entry.id}" data-open-detail data-detail-type="shopping" data-detail-id="${escapeHtml(entry.id)}" role="button" tabindex="0" aria-label="${escapeHtml(`${entry.name} Details öffnen`)}">
@@ -705,7 +719,7 @@ function shoppingRow(entry) {
       </div>
       <div class="row-actions">
         <button class="tiny-button" data-edit-shopping="${entry.id}" aria-label="${escapeHtml(entry.name)} bearbeiten"${disabled}>✎</button>
-        <button class="tiny-button danger" data-delete-shopping="${entry.id}" aria-label="${escapeHtml(entry.name)} löschen"${disabled}>×</button>
+        <button class="tiny-button danger${deleteArmed ? " is-armed" : ""}" data-delete-shopping="${entry.id}" aria-label="${escapeHtml(deleteArmed ? `${entry.name} endgültig löschen` : `${entry.name} löschen`)}"${disabled}>×</button>
       </div>
     </article>
   `;
@@ -751,7 +765,7 @@ function renderInventory() {
     button.addEventListener("click", () => adjustInventory(button.dataset.adjust, Number(button.dataset.delta)));
   });
   els.inventoryList.querySelectorAll("[data-edit-inventory]").forEach((button) => openEditOn(button, "inventory"));
-  els.inventoryList.querySelectorAll("[data-delete-inventory]").forEach((button) => button.addEventListener("click", () => deleteInventory(button.dataset.deleteInventory)));
+  els.inventoryList.querySelectorAll("[data-delete-inventory]").forEach((button) => button.addEventListener("click", () => requestDelete("inventory", button.dataset.deleteInventory)));
   els.inventoryList.querySelectorAll("[data-inventory-to-shopping]").forEach((button) => {
     button.addEventListener("click", () => addInventoryToShopping(button.dataset.inventoryToShopping));
   });
@@ -774,6 +788,7 @@ function inventoryRow(entry) {
   const category = getCategory(entry.categoryId);
   const low = Number(entry.minimumQuantity) > 0 && Number(entry.quantity) <= Number(entry.minimumQuantity);
   const meta = [category.name, entry.location].filter(Boolean).join(" · ");
+  const deleteArmed = isDeleteArmed("inventory", entry.id);
   return `
     <article class="item-row inventory-row" data-open-detail data-detail-type="inventory" data-detail-id="${escapeHtml(entry.id)}" role="button" tabindex="0" aria-label="${escapeHtml(`${entry.name} Details öffnen`)}">
       ${productThumbnail(entry, category, "inventory")}
@@ -788,7 +803,7 @@ function inventoryRow(entry) {
         <button class="tiny-button" data-adjust="${entry.id}" data-delta="1" aria-label="${escapeHtml(entry.name)} erhöhen">+</button>
         <button class="tiny-button" data-inventory-to-shopping="${entry.id}" aria-label="${escapeHtml(entry.name)} zur Einkaufsliste">＋</button>
         <button class="tiny-button" data-edit-inventory="${entry.id}" aria-label="${escapeHtml(entry.name)} bearbeiten">✎</button>
-        <button class="tiny-button danger" data-delete-inventory="${entry.id}" aria-label="${escapeHtml(entry.name)} löschen">×</button>
+        <button class="tiny-button danger${deleteArmed ? " is-armed" : ""}" data-delete-inventory="${entry.id}" aria-label="${escapeHtml(deleteArmed ? `${entry.name} endgültig löschen` : `${entry.name} löschen`)}">×</button>
       </div>
     </article>
   `;
@@ -1176,6 +1191,7 @@ function reopenItem(id) {
 }
 
 function deleteShopping(id) {
+  clearPendingDelete("shopping", id);
   const entry = state.shoppingItems.find((itemEntry) => itemEntry.id === id);
   const deletedEntry = entry ? cloneData(entry) : null;
   const deletedAt = new Date().toISOString();
@@ -1192,6 +1208,7 @@ function deleteShopping(id) {
 }
 
 function deleteInventory(id) {
+  clearPendingDelete("inventory", id);
   const entry = state.inventoryItems.find((itemEntry) => itemEntry.id === id);
   const deletedEntry = entry ? cloneData(entry) : null;
   const deletedAt = new Date().toISOString();
@@ -1205,6 +1222,41 @@ function deleteInventory(id) {
       action: () => restoreDeletedItem("inventory", deletedEntry),
     });
   }
+}
+
+function requestDelete(type, id) {
+  if (!id) return;
+  if (isDeleteArmed(type, id)) {
+    type === "inventory" ? deleteInventory(id) : deleteShopping(id);
+    return;
+  }
+
+  pendingDelete = { type, id, expiresAt: Date.now() + DELETE_CONFIRM_MS };
+  render();
+  showToast("Zum Löschen nochmal tippen");
+  window.clearTimeout(pendingDeleteTimeout);
+  pendingDeleteTimeout = window.setTimeout(() => {
+    if (!pendingDelete || pendingDelete.type !== type || pendingDelete.id !== id) return;
+    pendingDelete = null;
+    pendingDeleteTimeout = null;
+    render();
+  }, DELETE_CONFIRM_MS);
+}
+
+function isDeleteArmed(type, id) {
+  if (!pendingDelete) return false;
+  if (Date.now() > pendingDelete.expiresAt) {
+    pendingDelete = null;
+    return false;
+  }
+  return pendingDelete.type === type && pendingDelete.id === id;
+}
+
+function clearPendingDelete(type = null, id = null) {
+  if (type && id && !isDeleteArmed(type, id)) return;
+  pendingDelete = null;
+  window.clearTimeout(pendingDeleteTimeout);
+  pendingDeleteTimeout = null;
 }
 
 function restoreDeletedItem(type, entry) {
